@@ -5,3 +5,37 @@ date: "2026-06-05"
 output: html_document
 ---
 
+# Exploración de datos
+
+```{r importacion datos}
+#importamos los datos desde el repositorio en github
+df <-read.csv("rna1.csv")
+#exploramos las dimensiones y caracteristicas del df
+dim(df)
+str(df)
+head(df)
+#exploramos la proporcion de las clases
+table(df[,1])
+```
+Nuestro df contiene 150 individuos con 201 variables, entre las que encontramos 200 genes analizados y la variable class. En cuanto a la distribución de las clases, también exploradas podemos ver que existe cierto disbalance de clases que podría influir en el rendimiento de algunos clasificadores y debe tenerse en cuenta a la hora de evaluar las métricas. 
+
+## Reducción de la dimensionalidad 
+
+```{r PCA}
+#Para la reducción de la dimensionalidad separamos los genes y class del df 
+genes <- df[,-1]
+clase <- df[,1]
+#realizamos el PCA con el paquete FactoMineR y factoextra, dados en la asignatura
+#Analisis de datos Omicos
+library(FactoMineR)
+library(factoextra)
+library(patchwork)
+pca <- PCA(genes, scale.unit = TRUE, graph = FALSE)
+scree <- fviz_eig(pca) + labs(title = "A. Scree plot")
+# Gráfico de individuos coloreado por clase
+ind <- fviz_pca_ind(pca, col.ind = clase, geom.ind = "point", legend.title = "Clase")+labs(title = "B. Individuos")
+scree
+ind
+```
+El analisis de componentes principales mostró que las dos primeras explicaban el 32% de la varianza total, objetivando la separación parcial de los subtipos, mostrando tipus1 y tipus3 las agrupaciones más diferenciadas. 
+
