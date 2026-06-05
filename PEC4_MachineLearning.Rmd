@@ -19,6 +19,11 @@ table(df[,1])
 ```
 Nuestro df contiene 150 individuos con 201 variables, entre las que encontramos 200 genes analizados y la variable class. En cuanto a la distribución de las clases, también exploradas podemos ver que existe cierto disbalance de clases que podría influir en el rendimiento de algunos clasificadores y debe tenerse en cuenta a la hora de evaluar las métricas. 
 
+```{r exploracion valores NA}
+sum(is.na(df))
+```
+A su vez nuestro df no presenta valores pérdidos por lo que no es necesario un tratamiento específico
+
 ## Reducción de la dimensionalidad 
 
 ```{r PCA}
@@ -31,11 +36,14 @@ library(FactoMineR)
 library(factoextra)
 library(patchwork)
 pca <- PCA(genes, scale.unit = TRUE, graph = FALSE)
-scree <- fviz_eig(pca) + labs(title = "A. Scree plot")
+scree <- fviz_eig(pca)
 # Gráfico de individuos coloreado por clase
-ind <- fviz_pca_ind(pca, col.ind = clase, geom.ind = "point", legend.title = "Clase")+labs(title = "B. Individuos")
+ind <- fviz_pca_ind(pca, col.ind = clase, geom.ind = "point", addEllipses=TRUE, ellipse.level=0.95, legend.title = "Clase")
 scree
 ind
+ggsave("figura1.png", plot = ind, width = 8, height = 6, dpi = 300)
 ```
-El analisis de componentes principales mostró que las dos primeras explicaban el 32% de la varianza total, objetivando la separación parcial de los subtipos, mostrando tipus1 y tipus3 las agrupaciones más diferenciadas. 
+El analisis de componentes principales mostró que las dos primeras explicaban el 32% de la varianza total, objetivando la separación parcial de los subtipos, mostrando tipus1 y tipus3 las agrupaciones más diferenciadas. Tipus2 presenta un mayor solapamiento con las otras dos clases. Esta estructura sugiere que la clasificación de tipus2 podría resultar más difícil para los algoritmos evaluados.
+
+
 
