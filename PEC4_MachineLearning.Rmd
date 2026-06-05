@@ -1,0 +1,7 @@
+---
+title: "PEC4_MachineLearning"
+author: "Lucas Moratilla Lapeña"
+date: "2026-06-05"
+output: html_document
+---
+
