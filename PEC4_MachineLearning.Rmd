@@ -85,9 +85,82 @@ Podemos ver que el modelo kNN con k=5 es el mejor con Kappa bastante elevado, au
 ```{r KNN test}
 #realizamos la prediccion del modelo con el conjunto test
 pred_knn <- predict(mod_knn, newdata = test)
-#realizamos la matriz de confusion
-cm_knn <- confusionMatrix(pred_knn, as.factor(test$Class))
+#realizamos la matriz de confusion añadiendo everything en modo para que nos
+#facilite el F1 score
+cm_knn <- confusionMatrix(pred_knn, as.factor(test$Class), mode = "everything")
 cm_knn
 ```
+Usando la formula para $$F1 = \frac{2 \cdot \text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$$
+Debemos calcular el F1 sobre el total,para ello calcularemos la media del total del F1 score  
+
+```{r F1 KNN}
+#extraemos el valor f1 global mediante la media de las clases
+f1_knn <- mean(cm_knn$byClass[, "F1"])
+f1_knn
+```
+
+## Naive Bayes 
+
+Entrenamos el modelo Naive Bayes
+
+```{r NB}
+#cargamos el paquete klaR requerido por caret para realizar Naive Bayes
+library(klaR)
+set.seed(123)
+#definimos el grid para comparar con suavizado o no de Laplace (fL)
+#definimos usekernel = FALSE ya que nuestras variables siguen una distribucion 
+#Gaussiana al haber realizado una normalización previa
+grid_nb <- expand.grid(fL = c(0, 1), usekernel = FALSE, adjust=1)
+#definimos el control del entrenamiento que será por 10-fold CV
+ctrl <- trainControl(method = "cv", number = 10,
+#seleccionamos el metodo best
+                     selectionFunction = "best")
+#entrenamos nuestro modelo especificando el trainControl, tuneGrid y la metrica
+#de seleccion para el mejor modelo
+mod_nb <- train(Class ~ .,data = train, method = "nb",
+                trControl = ctrl, tuneGrid = grid_nb,
+                metric = "Kappa")
+mod_nb
+```
+Una vez entrenado el modelo objetivamos que en el conjunto de datos de entrenamiento el suavizado o no, obtuvo resultados identicos. Pasemos ahora al conjunto test 
+
+```{r NB test}
+pred_nb <- predict(mod_nb, newdata = test)
+cm_nb <- confusionMatrix(pred_nb, as.factor(test$Class), mode = "everything" )
+cm_nb
+```
+
+```{r f1 NB}
+#extraemos el valor F1 mediante la media de las clases 
+f1_nb <- mean(cm_nb$byClass[, "F1"])
+f1_nb
+```
+## SVM
+
+Comenzaremos con el modelo con el kernel lineal. Entrenamos el modelo
+
+```{r SVM lineal}
+library(kernlab)
+#establecemos el grid con los diferentes valores de coste C
+grid_svm_lineal <- expand.grid(C = c(0.1, 1, 10))
+#establecemos la semilla y entrenamos el modelo
+set.seed(123)
+mod_svm_lineal <- train(Class ~ ., data = train, method = "svmLinear",
+                           trControl = ctrl,tuneGrid = grid_svm_lineal, metric = "Kappa")
+mod_svm_lineal
+```
+Como podemos objetivar en los datos obtenidos parece ser que el hiperparametro C no tiene mucho peso a la hora de ajustar el modelo, por lo que podría indicar que existe un hiperplano independiente del valor C. Pasamos a la evaluación sobre el conjunto test 
+
+```{r SVM lineal test}
+pred_svm_lineal <- predict(mod_svm_lineal, newdata = test)
+cm_svm_lineal <- confusionMatrix(pred_svm_lineal, as.factor(test$Class),  mode = "everything" )
+cm_svm_lineal
+```
+
+```{r f1 SVM lineal}
+f1_svm_lineal <- mean(cm_svm_lineal$byClass[, "F1"])
+f1_svm_lineal
+```
+
 
 
