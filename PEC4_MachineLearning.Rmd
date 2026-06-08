@@ -67,7 +67,7 @@ Comenzamos entrenando el modelo de k-Nearest Neighbours
 ```{r KNN}
 set.seed(123)
 #definimos el grid de los parametros k para nuestro modelo
-grid_knn <- expand.grid(k = c(3, 5, 7, 9, 11))
+grid_knn <- expand.grid(k = c(3, 5, 9, 11, 15))
 
 #definimos el control del entrenamiento que será por 10-fold CV
 ctrl <- trainControl(method = "cv", number = 10,
@@ -79,6 +79,15 @@ mod_knn <- train(Class ~ .,data = train, method = "knn",
                 trControl = ctrl, tuneGrid = grid_knn,
                 metric = "Kappa")
 mod_knn
+```
+Podemos ver que el modelo kNN con k=5 es el mejor con Kappa bastante elevado, aunque esto únicamente es sobre train. Pasamos ahora a evaluar test 
+
+```{r KNN test}
+#realizamos la prediccion del modelo con el conjunto test
+pred_knn <- predict(mod_knn, newdata = test)
+#realizamos la matriz de confusion
+cm_knn <- confusionMatrix(pred_knn, as.factor(test$Class))
+cm_knn
 ```
 
 
