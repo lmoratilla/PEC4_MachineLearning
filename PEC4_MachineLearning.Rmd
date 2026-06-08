@@ -137,12 +137,14 @@ f1_nb
 ```
 ## SVM
 
+### SVM lineal
+
 Comenzaremos con el modelo con el kernel lineal. Entrenamos el modelo
 
 ```{r SVM lineal}
 library(kernlab)
 #establecemos el grid con los diferentes valores de coste C
-grid_svm_lineal <- expand.grid(C = c(0.1, 1, 10))
+grid_svm_lineal <- expand.grid(C = c(0.1, 0.5, 1, 2))
 #establecemos la semilla y entrenamos el modelo
 set.seed(123)
 mod_svm_lineal <- train(Class ~ ., data = train, method = "svmLinear",
@@ -162,5 +164,32 @@ f1_svm_lineal <- mean(cm_svm_lineal$byClass[, "F1"])
 f1_svm_lineal
 ```
 
+### SVM RBF
 
+Entrenamos el modelo SVM radial. Recordemos que a parte del hiperparametro C, ahora tambien ajustaremos el hiperparametro sigma. 
 
+```{r SVM radial}
+grid_svm_rbf <- expand.grid(sigma = c(0.005, 0.01, 0.1, 0.5, 1),
+                             C = c(0.1, 0.5, 1, 2))
+set.seed(123)
+mod_svm_rbf <- train(Class ~ .,data = train,method = "svmRadial",
+                        trControl = ctrl,tuneGrid = grid_svm_rbf,
+                        metric = "Kappa")
+
+mod_svm_rbf
+```
+Como podemos objetivar en este modelo influyen tanto los parametros C como sigma, pero sobre todo este último donde valores por encima de 0.01 no ayudan a diferenciar entre las clases.
+
+Pasamos a evaluar sobre el conjunto test
+
+```{r SVM rbf test}
+pred_svm_rbf <- predict(mod_svm_rbf, newdata = test)
+cm_svm_rbf <- confusionMatrix(pred_svm_rbf, as.factor(test$Class), mode = "everything" )
+cm_svm_rbf
+```
+
+```{r SVM rbf f1}
+f1_svm_rbf <- mean(cm_svm_rbf$byClass[, "F1"])
+f1_svm_rbf
+```
+Como veremos en el apartado correspondiente del ejercicio a la hora de comparar las métricas, vemos que tanto el kernel lineal como el kernel radial obtienen métricas idéntficas por lo que en caso de tener que elegir, optaremos por el kernel lineal ya que computacionalmente es mas sencillo. 
