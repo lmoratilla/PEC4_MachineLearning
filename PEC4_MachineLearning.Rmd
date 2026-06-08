@@ -58,5 +58,27 @@ test  <- df[-particion, ]
 prop.table(table(train$Class))
 prop.table(table(test$Class))
 ```
+# Entrenamiento de modelos 
+
+## KNN
+
+Comenzamos entrenando el modelo de k-Nearest Neighbours
+
+```{r KNN}
+set.seed(123)
+#definimos el grid de los parametros k para nuestro modelo
+grid_knn <- expand.grid(k = c(3, 5, 7, 9, 11))
+
+#definimos el control del entrenamiento que será por 10-fold CV
+ctrl <- trainControl(method = "cv", number = 10,
+#seleccionamos el metodo best
+                     selectionFunction = "best")
+#entrenamos nuestro modelo especificando el trainControl, tuneGrid y la metrica
+#de seleccion para el mejor modelo
+mod_knn <- train(Class ~ .,data = train, method = "knn",
+                trControl = ctrl, tuneGrid = grid_knn,
+                metric = "Kappa")
+mod_knn
+```
 
 
