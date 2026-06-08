@@ -221,4 +221,26 @@ f1_c50
 ```
 ## Random Forest
 
+Nuestro siguiente modelo lo constituye random forest. Debemos saber que el hiperparámetro mtry esta constituido de manera automatica por sqrt(p). En nuestro caso p = 200 por lo que tomaremos los valores especificados 7, 15, 30 y 60. 
+
+```{r RF train}
+#establecemos el grid
+grid_rf <- expand.grid(mtry = c(7, 15, 30, 60))
+set.seed(123)
+mod_rf <- train(Class ~ .,data = train, method = "rf",
+                   trControl = ctrl,tuneGrid = grid_rf,metric = "Kappa")
+mod_rf
+```
+Podemos ver como nuestro modelo de random forest mas óptimo es aquel que usa mas variables por rama para la clasificación (mtry=60) sin embargo, podemos ver como este rendimiento se estabiliza a partir del mtry=15 siendo la diferencia mínima en kappa, teniendo esto en cuenta, a pesar de que caret selecciona el mtry con mayor kappa, por el principio de parsimonia y por ser computacionalmente mas sencillo deberíamos seleccionar aquel con mtry=15. Vamos ahora con el analisis de test con el modelo seleccionado
+
+```{r RF test}
+pred_rf <- predict(mod_rf, newdata = test)
+cm_rf <- confusionMatrix(pred_rf, as.factor(test$Class), mode="everything")
+cm_rf
+```
+
+```{r f1 RF}
+f1_rf <- mean(cm_rf$byClass[, "F1"])
+f1_rf
+```
 
