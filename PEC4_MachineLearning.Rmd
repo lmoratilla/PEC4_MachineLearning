@@ -193,3 +193,32 @@ f1_svm_rbf <- mean(cm_svm_rbf$byClass[, "F1"])
 f1_svm_rbf
 ```
 Como veremos en el apartado correspondiente del ejercicio a la hora de comparar las métricas, vemos que tanto el kernel lineal como el kernel radial obtienen métricas idéntficas por lo que en caso de tener que elegir, optaremos por el kernel lineal ya que computacionalmente es mas sencillo. 
+
+## Arboles de clasificación 
+
+Para nuestro modelo usaremos el algoritmo C5.0. A su vez definiremos el modelos sin boosting (trials = 1) y con boosting (trials = 10, 20, 30) explorando de esta manera si mejora añadiendo estos parámetros. 
+
+```{r C5.0 train}
+library(C50)
+#establecemos el grid con nuestros trials y el modelo que vamos a usar
+grid_c50 <- expand.grid(trials = c(1, 10, 20, 30),model = "tree",winnow = FALSE)
+set.seed(123)
+#entrenamos el modelo con el algoritmo C5.0
+mod_c50 <- train(Class ~ .,data = train, method = "C5.0",
+                    trControl = ctrl, tuneGrid = grid_c50,metric = "Kappa")
+mod_c50
+```
+Podemos ver como en el conjunto de entrenamiento el boosting del arbol de decisión mejora de manera muy notable la capacidad predictiva del modelo en el conjunto de entrenamiento, sin embargo, a pesar de ello, en comparación al resto de modelos la capacidad esta muy por debajo. Pasamos a evaluar el conjunto test 
+
+```{r C5.0 test}
+pred_c50 <- predict(mod_c50, newdata = test)
+cm_c50 <- confusionMatrix(pred_c50, as.factor(test$Class), mode = "everything")
+cm_c50
+```
+```{r f1 C5.0}
+f1_c50 <- mean(cm_c50$byClass[, "F1"])
+f1_c50
+```
+## Random Forest
+
+
