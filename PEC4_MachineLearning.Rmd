@@ -45,18 +45,18 @@ ggsave("figura1.png", plot = ind, width = 8, height = 6, dpi = 300)
 ```
 El analisis de componentes principales mostró que las dos primeras explicaban el 32% de la varianza total, objetivando la separación parcial de los subtipos, mostrando tipus1 y tipus3 las agrupaciones más diferenciadas. Tipus2 presenta un mayor solapamiento con las otras dos clases. Esta estructura sugiere que la clasificación de tipus2 podría resultar más difícil para los algoritmos evaluados.
 
+## Partición train/test
 
-```{r}
-library(dplyr)
-
-df %>%
-  group_by(Class) %>%
-  summarise(
-    N = n(),
-    Media = round(mean(c_across(where(is.numeric))), 2),
-    SD = round(sd(c_across(where(is.numeric))), 2),
-    Min = round(min(c_across(where(is.numeric))), 2),
-    Max = round(max(c_across(where(is.numeric))), 2)
-  )
+```{r particion}
+library(caret)
+set.seed(123)
+#creamos la particion usando la proporcion antes especificada 70/30
+particion <- createDataPartition(df$Class, p = 0.7, list=FALSE)
+train <- df[particion, ]
+test  <- df[-particion, ]
+# Verificamos que se mantengan las proporciones de clase tras la particion
+prop.table(table(train$Class))
+prop.table(table(test$Class))
 ```
+
 
